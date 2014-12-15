@@ -3,7 +3,8 @@ machine:
     version: 2.1.5
         
 test:
-  override:               
+  override:         
+    - bundle install      
     - rake all    
     
   post:  
