@@ -1,0 +1,8 @@
+config/newrelic_plugin.yml
+config/newrelic_plugin.yml
+Gemfile.lock
+glusterfs-agent-1.0.1.gem
+doc
+.yardoc
+coverage
+config/glusterfs_agent.yml
