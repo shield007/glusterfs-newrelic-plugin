@@ -41,24 +41,39 @@ module GlusterFSAgent
             raise "Unable to get gluster version: #{output}"
         end
     end
-    
+
     def GlusterFSAgent.get_volume_status
-            output = `gluster volume status`
-            result=$?.success?
+        output = `gluster volume status`
+        result=$?.success?
+        if result
+            result = parse_version(output)
             if result
-                result = parse_version(output)
-                if result
-                    return result
-                else
-                    raise "Unable to get gluster version: #{output}"
-                end
+                return result
             else
                 raise "Unable to get gluster version: #{output}"
             end
+        else
+            raise "Unable to get gluster version: #{output}"
         end
+    end
+    
+    def GlusterFSAgent.get_volume_status
+        output = `gluster volume geo status`
+        result=$?.success?
+        if result
+            result = parse_volume_geo_status(output)
+            if result
+                return result
+            else
+                raise "Unable to get gluster version: #{output}"
+            end
+        else
+            raise "Unable to get gluster version: #{output}"
+        end
+    end
 
     def GlusterFSAgent.parse_version(output)
-        output = output.lines()        
+        output = output.lines()
         if (output[0] =~ /^(.+?) (.+?) .*$/)
             version=$2
             return version
@@ -68,39 +83,39 @@ module GlusterFSAgent
 
     def GlusterFSAgent.parse_volume_status(output)
         result = []
-        output.lines().each { | line |           
+        output.lines().each { | line |
             if (line =~ /^Brick +(.+?) +(\d+) +(.) +(\d+).*$/)
                 online = false
                 if $3=='Y'
                     online = true
-                end                
+                end
                 result << { 'brick'=>$1, 'port'=>$2.to_i, 'online'=>online, 'pid'=>$4.to_i}
             end
         }
 
         return result
     end
-    
+
     def GlusterFSAgent.parse_volume_geo_status(output)
         result = []
-        count =0        
-        output.lines().each { | line |           
-            line = line.strip        
+        count =0
+        output.lines().each { | line |
+            line = line.strip
             if (line =~ /^(.+?) +(.+?) +(.+?) +(.+?) +(.+?) +(.+?) +(.+)$/)
                 if count > 0
-                    puts line 
-                    result << { 'masterNode'=>$1, 
-                                'masterVol'=>$2, 
-                                'masterBrick'=>$3, 
-                                'slave'=>$4,
-                                'status'=>$5,
-                                'checkpointStatus'=>$6,
-                                'crawlStatus'=>$7
+                    puts line
+                    result << { 'masterNode'=>$1,
+                        'masterVol'=>$2,
+                        'masterBrick'=>$3,
+                        'slave'=>$4,
+                        'status'=>$5,
+                        'checkpointStatus'=>$6,
+                        'crawlStatus'=>$7
                     }
                 end
                 count = count+1
-            end            
-                            
+            end
+
         }
         return result
     end
