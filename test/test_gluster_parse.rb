@@ -79,4 +79,35 @@ class GlusterParseTest < Test::Unit::TestCase
         
         puts("--Test Finish:#{this_method()}")
     end
+    
+    def test_VolumeGeoStatus()
+        puts("\n-- Test Start: #{this_method()}")
+         
+        output = "\n"
+        output = output+"MASTER NODE      MASTER VOL    MASTER BRICK         SLAVE                      STATUS     CHECKPOINT STATUS    CRAWL STATUS\n"           
+        output = output+"-------------------------------------------------------------------------------------------------------------------------------\n"
+        output = output+"testnode1        filer         /export/sdd1/data    remotenode::filer          Passive    N/A                  N/A                    \n"
+        output = output+"testnode2        filer         /export/sdd1/data    remotenode::filer          Active     N/A                  Changelog Crawl\n"
+        
+        result = GlusterFSAgent::parse_volume_geo_status(output)        
+        assert_equal(2,result.count)
+        
+        assert_equal('testnode1',result[0]['masterNode'])
+        assert_equal('filer',result[0]['masterVol'])
+        assert_equal('/export/sdd1/data',result[0]['masterBrick'])
+        assert_equal('remotenode::filer',result[0]['slave'])
+        assert_equal('Passive',result[0]['status'])
+        assert_equal('N/A',result[0]['checkpointStatus'])
+        assert_equal('N/A',result[0]['crawlStatus'])
+        
+        assert_equal('testnode2',result[1]['masterNode'])
+        assert_equal('filer',result[1]['masterVol'])
+        assert_equal('/export/sdd1/data',result[1]['masterBrick'])
+        assert_equal('remotenode::filer',result[1]['slave'])
+        assert_equal('Active',result[1]['status'])
+        assert_equal('N/A',result[1]['checkpointStatus'])
+        assert_equal('Changelog Crawl',result[1]['crawlStatus'])
+            
+        puts("--Test Finish:#{this_method()}")
+    end
 end
