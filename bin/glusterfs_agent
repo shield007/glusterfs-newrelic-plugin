@@ -110,9 +110,10 @@ module GlusterFSAgent
     rescue => exception
       puts("#{exception.class.name}: "+exception.message)
       exception.backtrace.each do | trace | 
-          puts.error("  * " + trace)
+          STDERR.puts("  * " + trace)
       end      
       exit(2)     
+    end
     end
   end
 
