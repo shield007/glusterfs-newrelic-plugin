@@ -106,8 +106,7 @@ module GlusterFSAgent
           end
         }
         report_metric "OfflineBricks_#{hostname}","Value", offline
-        report_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
-      end
+        report_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)      
     rescue => exception
       puts("#{exception.class.name}: "+exception.message)
       exception.backtrace.each do | trace | 
