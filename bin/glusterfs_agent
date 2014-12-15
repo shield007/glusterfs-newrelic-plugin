@@ -75,39 +75,46 @@ module GlusterFSAgent
     agent_human_labels("GlusterFS Agent") { "Gluster health checker" }
 
     def poll_cycle
-      hostname = ENV['HOSTNAME']
-
-      connectedPeers = 0
-      peers = GlusterFSAgent::get_gluster_pool_list()
-      peers.each { | peer |
-        if peer['state']=='Connected'
-          connectedPeers = connectedPeers+1
-        end 
-      }
-      report_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
-      report_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
-      
-      geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
-      working = 0
-      geoVolumes.each { | volume |
-        if geoVolumes['status'] == 'Passive' or geoVolumes['status'] == 'Active'
-          working = working+1
-        end
-      }
-      report_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
-      report_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
+      begin
+        hostname = ENV['HOSTNAME']
   
-      volumes = GlusterFSAgent::get_gluster_volume_status()
-      offline = 0
-      volumes.each { | volume |
-        if !volume['online']
-          offline = offline+1
-        end
-      }
-      report_metric "OfflineBricks_#{hostname}","Value", offline
-      report_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
+        connectedPeers = 0
+        peers = GlusterFSAgent::get_gluster_pool_list()
+        peers.each { | peer |
+          if peer['state']=='Connected'
+            connectedPeers = connectedPeers+1
+          end 
+        }
+        report_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
+        report_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
+        
+        geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
+        working = 0
+        geoVolumes.each { | volume |
+          if geoVolumes['status'] == 'Passive' or geoVolumes['status'] == 'Active'
+            working = working+1
+          end
+        }
+        report_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
+        report_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
+    
+        volumes = GlusterFSAgent::get_gluster_volume_status()
+        offline = 0
+        volumes.each { | volume |
+          if !volume['online']
+            offline = offline+1
+          end
+        }
+        report_metric "OfflineBricks_#{hostname}","Value", offline
+        report_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
+      end
+    rescue => exception
+      puts("#{exception.class.name}: "+exception.message)
+      exception.backtrace.each do | trace | 
+          puts.error("  * " + trace)
+      end      
+      exit(2)     
     end
-
   end
 
   #
