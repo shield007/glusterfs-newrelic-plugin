@@ -3,6 +3,9 @@ machine:
     version: 2.1.5
         
 test:
+  override:               
+    - rake all    
+    
   post:  
     - ls
     - cp -R doc $CIRCLE_ARTIFACTS/
