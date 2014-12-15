@@ -50,14 +50,14 @@ module GlusterFSAgent
             if result
                 return result
             else
-                raise "Unable to get gluster version: #{output}"
+                raise "Unable to get gluster volume status: #{output}"
             end
         else
-            raise "Unable to get gluster version: #{output}"
+            raise "Unable to get gluster volume status: #{output}"
         end
     end
     
-    def GlusterFSAgent.get_volume_status
+    def GlusterFSAgent.get_volume_geo_status
         output = `gluster volume geo status`
         result=$?.success?
         if result
@@ -65,10 +65,25 @@ module GlusterFSAgent
             if result
                 return result
             else
-                raise "Unable to get gluster version: #{output}"
+                raise "Unable to get volume geo status: #{output}"
             end
         else
-            raise "Unable to get gluster version: #{output}"
+            raise "Unable to get volume geo status: #{output}"
+        end
+    end
+    
+    def GlusterFSAgent.get_pool_list
+        output = `gluster pool list`
+        result=$?.success?
+        if result
+            result = parse_pool_list(output)
+            if result
+                return result
+            else
+                raise "Unable to get pool list: #{output}"
+            end
+        else
+            raise "Unable to get pool list: #{output}"
         end
     end
 
@@ -102,8 +117,7 @@ module GlusterFSAgent
         output.lines().each { | line |
             line = line.strip
             if (line =~ /^(.+?) +(.+?) +(.+?) +(.+?) +(.+?) +(.+?) +(.+)$/)
-                if count > 0
-                    puts line
+                if count > 0                    
                     result << { 'masterNode'=>$1,
                         'masterVol'=>$2,
                         'masterBrick'=>$3,
@@ -111,6 +125,25 @@ module GlusterFSAgent
                         'status'=>$5,
                         'checkpointStatus'=>$6,
                         'crawlStatus'=>$7
+                    }
+                end
+                count = count+1
+            end
+
+        }
+        return result
+    end
+    
+    def GlusterFSAgent.parse_pool_list(output)
+        result = []
+        count =0
+        output.lines().each { | line |
+            line = line.strip            
+            if (line =~ /^(.+?) +(.+?) +(.+)$/)                
+                if count > 0                                       
+                    result << { 'UUID'=>$1,
+                        'hostname'=>$2,
+                        'state'=>$3,                        
                     }
                 end
                 count = count+1

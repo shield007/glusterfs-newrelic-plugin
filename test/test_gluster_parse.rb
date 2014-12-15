@@ -110,4 +110,26 @@ class GlusterParseTest < Test::Unit::TestCase
             
         puts("--Test Finish:#{this_method()}")
     end
+    
+    def test_PoolList()
+        puts("\n-- Test Start: #{this_method()}")
+        
+        output = ""
+        output = output+"UUID                                    Hostname        State\n"
+        output = output+"11111111-2222-2222-2222-222222222222    10.1.1.1        Connected\n" 
+        output = output+"33333333-2222-2222-2222-444444444444    localhost       Connected\n"
+        
+        result = GlusterFSAgent::parse_pool_list(output)        
+        assert_equal(2,result.count)
+        
+        assert_equal('11111111-2222-2222-2222-222222222222',result[0]['UUID'])
+        assert_equal('10.1.1.1',result[0]['hostname'])
+        assert_equal('Connected',result[0]['state'])
+                
+        assert_equal('33333333-2222-2222-2222-444444444444',result[1]['UUID'])
+        assert_equal('localhost',result[1]['hostname'])
+        assert_equal('Connected',result[1]['state'])
+        
+        puts("--Test Finish:#{this_method()}")
+    end
 end
