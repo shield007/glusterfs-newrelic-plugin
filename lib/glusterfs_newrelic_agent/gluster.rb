@@ -27,7 +27,7 @@
 #
 
 module GlusterFSAgent
-    def GlusterFSAgent.get_gluster_version
+    def GlusterFSAgent.get_gluster_version()
         output = `glusterfsd --version`
         result=$?.success?
         if result
@@ -42,7 +42,7 @@ module GlusterFSAgent
         end
     end
 
-    def GlusterFSAgent.get_volume_status
+    def GlusterFSAgent.get_gluster_volume_status()
         output = `gluster volume status`
         result=$?.success?
         if result
@@ -57,7 +57,7 @@ module GlusterFSAgent
         end
     end
     
-    def GlusterFSAgent.get_volume_geo_status
+    def GlusterFSAgent.get_gluster_volume_geo_status()
         output = `gluster volume geo status`
         result=$?.success?
         if result
@@ -72,7 +72,7 @@ module GlusterFSAgent
         end
     end
     
-    def GlusterFSAgent.get_pool_list
+    def GlusterFSAgent.get_gluster_pool_list()
         output = `gluster pool list`
         result=$?.success?
         if result
