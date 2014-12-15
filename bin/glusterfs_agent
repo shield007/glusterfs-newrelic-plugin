@@ -95,7 +95,7 @@ module GlusterFSAgent
         end
       }
       report_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
-      report_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", volumes.count()
+      report_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
   
       volumes = GlusterFSAgent::get_gluster_volume_status()
       offline = 0
