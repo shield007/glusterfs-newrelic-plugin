@@ -44,29 +44,35 @@ require "glusterfs_newrelic_agent/version"
 require "glusterfs_newrelic_agent/gluster"
 
 module GlusterFSAgent
-
-  # Find thre config file that we are going to use
-  this_dir = File.dirname(__FILE__)
-  config_file = ""
-  location = File.join(this_dir,  '..','config/glusterfs_agent.yml')
-  puts "Looking for config file at #{location}"
-  if config_file = "" && File.file?(location)
-  config_file = location
+ 
+  # Find the configuration file to use
+  def GlusterFSAgent.findConfig()
+      
+      this_dir = File.dirname(__FILE__)
+      config_file = ""
+      
+      location = File.join(this_dir,  '..','config/glusterfs_agent.yml')
+      puts "Looking for config file at #{location}"
+      if config_file = "" && File.file?(location)
+      config_file = location
+      end
+    
+      location = '/etc/newrelic_plugins/glusterfs_agent.yml'
+      puts "Looking for config file at #{location}"
+      if config_file = "" && File.file?(location)
+      config_file = location
+      end
+    
+      if config_file == ""
+        STDERR.puts "Unable to find a valid config file"
+        exit(1)
+      end
+    
+      puts "Using config file at location #{config_file}"
+      return config_file
   end
-
-  location = '/etc/newrelic_plugins/glusterfs_agent.yml'
-  puts "Looking for config file at #{location}"
-  if config_file = "" && File.file?(location)
-  config_file = location
-  end
-
-  if config_file == ""
-    puts "Unable to find a valid config file"
-    exit(1)
-  end
-
-  puts "Using config file at location #{config_file}"
-  NewRelic::Plugin::Config.config_file = config_file
+    
+  NewRelic::Plugin::Config.config_file = GlusterFSAgent::findConfig()
 
   class Agent < NewRelic::Plugin::Agent::Base
 
@@ -74,46 +80,51 @@ module GlusterFSAgent
     agent_version VERSION
     agent_human_labels("GlusterFS Agent") { "Gluster health checker" }
 
+    def send_metric(title,value_type,value)
+        report_metric title, value_type, value
+        puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
+    end
+
     def poll_cycle
       begin
         hostname = ENV['HOSTNAME']
-  
+
         connectedPeers = 0
         peers = GlusterFSAgent::get_gluster_pool_list()
         peers.each { | peer |
           if peer['state']=='Connected'
             connectedPeers = connectedPeers+1
-          end 
+          end
         }
-        report_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
-        report_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
-        
+        send_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
+        send_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
+
         geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
         working = 0
         geoVolumes.each { | volume |
           if geoVolumes['status'] == 'Passive' or geoVolumes['status'] == 'Active'
-            working = working+1
+          working = working+1
           end
         }
-        report_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
-        report_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
-    
+        send_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
+        send_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
+
         volumes = GlusterFSAgent::get_gluster_volume_status()
         offline = 0
         volumes.each { | volume |
           if !volume['online']
-            offline = offline+1
+          offline = offline+1
           end
         }
-        report_metric "OfflineBricks_#{hostname}","Value", offline
-        report_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)      
-    rescue => exception
-      puts("#{exception.class.name}: "+exception.message)
-      exception.backtrace.each do | trace | 
+        send_metric "OfflineBricks_#{hostname}","Value", offline
+        send_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
+      rescue => exception
+        puts("#{exception.class.name}: "+exception.message)
+        exception.backtrace.each do | trace |
           STDERR.puts("  * " + trace)
-      end      
-      exit(2)     
-    end
+        end
+        exit(2)
+      end
     end
   end
 
