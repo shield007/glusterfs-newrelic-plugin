@@ -32,10 +32,10 @@ lib_dir  = File.join(this_dir,  '..', 'lib')
 $: << lib_dir
 
 begin
-  require 'glusterfs_newrelic_agent'
+    require 'glusterfs_newrelic_agent'
 rescue LoadError
-  require 'rubygems'
-  require 'glusterfs_newrelic_agent'
+    require 'rubygems'
+    require 'glusterfs_newrelic_agent'
 end
 
 require "bundler/setup"
@@ -64,8 +64,8 @@ module GlusterFSAgent
       end
     
       if config_file == ""
-        STDERR.puts "Unable to find a valid config file"
-        exit(1)
+          STDERR.puts "Unable to find a valid config file"
+          exit(1)
       end
     
       puts "Using config file at location #{config_file}"
@@ -82,50 +82,50 @@ module GlusterFSAgent
 
     def send_metric(title,value_type,value)
         report_metric title, value_type, value
-        puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
+        # puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
     end
 
     def poll_cycle
-      begin
-        hostname = ENV['HOSTNAME']
-
-        connectedPeers = 0
-        peers = GlusterFSAgent::get_gluster_pool_list()
-        peers.each { | peer |
-          if peer['state']=='Connected'
-            connectedPeers = connectedPeers+1
-          end
-        }
-        send_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
-        send_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
-
-        geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
-        working = 0
-        geoVolumes.each { | volume |
-          if geoVolumes['status'] == 'Passive' or geoVolumes['status'] == 'Active'
-          working = working+1
-          end
-        }
-        send_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
-        send_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
-
-        volumes = GlusterFSAgent::get_gluster_volume_status()
-        offline = 0
-        volumes.each { | volume |
-          if !volume['online']
-          offline = offline+1
-          end
-        }
-        send_metric "OfflineBricks_#{hostname}","Value", offline
-        send_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
-      rescue => exception
-        puts("#{exception.class.name}: "+exception.message)
-        exception.backtrace.each do | trace |
-          STDERR.puts("  * " + trace)
+        begin
+            hostname = ENV['HOSTNAME']
+    
+            connectedPeers = 0
+            peers = GlusterFSAgent::get_gluster_pool_list()
+            peers.each { | peer |
+              if peer['state']=='Connected'
+                connectedPeers = connectedPeers+1
+              end
+            }
+            send_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
+            send_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
+    
+            geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
+            working = 0
+            geoVolumes.each { | volume |
+                if geoVolumes['status'] == 'Passive' or geoVolumes['status'] == 'Active'
+                    working = working+1
+                end
+            }
+            send_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
+            send_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
+    
+            volumes = GlusterFSAgent::get_gluster_volume_status()
+            offline = 0
+            volumes.each { | volume |
+                if !volume['online']
+                    offline = offline+1
+                end
+            }
+            send_metric "OfflineBricks_#{hostname}","Value", offline
+            send_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
+        rescue => exception
+            puts("#{exception.class.name}: "+exception.message)
+            exception.backtrace.each do | trace |
+              STDERR.puts("  * " + trace)
+            end
+            exit(2)
         end
-        exit(2)
       end
-    end
   end
 
   #
