@@ -82,7 +82,7 @@ module GlusterFSAgent
     agent_human_labels("GlusterFS Agent") { "Gluster #{ENV['HOSTNAME']}" }
 
     def send_metric(title,value_type,value)
-        report_metric title, value_type, value
+        report_metric title, value_type, {:count => 1, :total =>value, :min => value, :max =>value, :sum_of_squares=> 0}
         # puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
     end
 
@@ -95,8 +95,8 @@ module GlusterFSAgent
                 connectedPeers = connectedPeers+1
               end
             }
-            send_metric "NumberOfPeersConnected/Count", "Value", connectedPeers
-            send_metric "NumberOfPeers/Count", "Value", peers.count()
+            send_metric "NumberOfPeersConnected", "Value", connectedPeers
+            send_metric "NumberOfPeers", "Value", peers.count()
     
             geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
             working = 0
@@ -105,8 +105,8 @@ module GlusterFSAgent
                     working = working+1
                 end
             }
-            send_metric "NumberOfWorkingGeoReplicationPeers/Count","Value", working
-            send_metric "NumberOfGeoReplicationPeers/Count","Value", geoVolumes.count()
+            send_metric "NumberOfWorkingGeoReplicationPeers","Value", working
+            send_metric "NumberOfGeoReplicationPeers","Value", geoVolumes.count()
     
             volumes = GlusterFSAgent::get_gluster_volume_status()
             offline = 0
@@ -115,8 +115,8 @@ module GlusterFSAgent
                     offline = offline+1
                 end
             }
-            send_metric "OfflineBricks/Count","Value", offline
-            send_metric "OnlineBricks/Count","Value", (volumes.count()-offline)
+            send_metric "OfflineBricks","Value", offline
+            send_metric "OnlineBricks","Value", (volumes.count()-offline)
         rescue => exception
             puts("#{exception.class.name}: "+exception.message)
             exception.backtrace.each do | trace |
