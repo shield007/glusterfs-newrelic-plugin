@@ -46,7 +46,7 @@ module GlusterFSAgent
         output = `gluster volume status`
         result=$?.success?
         if result
-            result = parse_version(output)
+            result = parse_volume_status(output)
             if result
                 return result
             else
