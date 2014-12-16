@@ -82,7 +82,7 @@ module GlusterFSAgent
     agent_human_labels("GlusterFS Agent") { "Gluster #{ENV['HOSTNAME']}" }
 
     def send_metric(title,value_type,value)
-        report_metric title, value_type, {:count => 1, :total =>value, :min => value, :max =>value, :sum_of_squares=> 0}
+        report_metric title, value_type,value, {:count => 1, :min => value, :max =>value, :sum_of_squares=> 0}
         # puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
     end
 
