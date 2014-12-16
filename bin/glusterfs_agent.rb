@@ -72,13 +72,14 @@ module GlusterFSAgent
       return config_file
   end
     
-  NewRelic::Plugin::Config.config_file = GlusterFSAgent::findConfig()
+  NewRelic::Plugin::Config.config_file = GlusterFSAgent::findConfig()  
 
   class Agent < NewRelic::Plugin::Agent::Base
 
+  
     agent_guid "org.mbed.gluster"
     agent_version VERSION
-    agent_human_labels("GlusterFS Agent") { "Gluster health checker" }
+    agent_human_labels("GlusterFS Agent") { "Gluster #{ENV['HOSTNAME']}" }
 
     def send_metric(title,value_type,value)
         report_metric title, value_type, value
@@ -86,9 +87,7 @@ module GlusterFSAgent
     end
 
     def poll_cycle
-        begin
-            hostname = ENV['HOSTNAME']
-    
+        begin               
             connectedPeers = 0
             peers = GlusterFSAgent::get_gluster_pool_list()
             peers.each { | peer |
@@ -96,8 +95,8 @@ module GlusterFSAgent
                 connectedPeers = connectedPeers+1
               end
             }
-            send_metric "NumberOfPeersConnected_#{hostname}", "Value", connectedPeers
-            send_metric "NumberOfPeers_#{hostname}", "Value", peers.count()
+            send_metric "NumberOfPeersConnected/Count", "Value", connectedPeers
+            send_metric "NumberOfPeers/Count", "Value", peers.count()
     
             geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
             working = 0
@@ -106,8 +105,8 @@ module GlusterFSAgent
                     working = working+1
                 end
             }
-            send_metric "NumberOfWorkingGeoReplicationPeers_#{hostname}","Value", working
-            send_metric "NumberOfGeoReplicationPeers_#{hostname}","Value", geoVolumes.count()
+            send_metric "NumberOfWorkingGeoReplicationPeers/Count","Value", working
+            send_metric "NumberOfGeoReplicationPeers/Count","Value", geoVolumes.count()
     
             volumes = GlusterFSAgent::get_gluster_volume_status()
             offline = 0
@@ -116,8 +115,8 @@ module GlusterFSAgent
                     offline = offline+1
                 end
             }
-            send_metric "OfflineBricks_#{hostname}","Value", offline
-            send_metric "OnlineBricks_#{hostname}","Value", (volumes.count()-offline)
+            send_metric "OfflineBricks/Count","Value", offline
+            send_metric "OnlineBricks/Count","Value", (volumes.count()-offline)
         rescue => exception
             puts("#{exception.class.name}: "+exception.message)
             exception.backtrace.each do | trace |
