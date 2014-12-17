@@ -111,6 +111,18 @@ class GlusterParseTest < Test::Unit::TestCase
         puts("--Test Finish:#{this_method()}")
     end
     
+    def test_VolumeGeoStatusNoVolumes()
+        puts("\n-- Test Start: #{this_method()}")
+                 
+        output = "No active geo-replication sessions\n"        
+        
+        result = GlusterFSAgent::parse_volume_geo_status(output)        
+        assert_equal(0,result.count)
+        
+        puts("--Test Finish:#{this_method()}")
+    end
+        
+    
     def test_PoolList()
         puts("\n-- Test Start: #{this_method()}")
         
