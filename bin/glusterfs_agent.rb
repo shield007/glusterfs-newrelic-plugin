@@ -101,7 +101,7 @@ module GlusterFSAgent
             geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
             working = 0
             geoVolumes.each { | volume |
-                if geoVolumes['status'] == 'Passive' or geoVolumes['status'] == 'Active'
+                if volume['status'] == 'Passive' or volume['status'] == 'Active'
                     working = working+1
                 end
             }
