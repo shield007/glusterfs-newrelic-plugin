@@ -73,7 +73,7 @@ module GlusterFSAgent
     end
     
     def GlusterFSAgent.get_gluster_pool_list()
-        output = `gluster pool list`
+        output = `gluster pool list`        
         result=$?.success?
         if result
             result = parse_pool_list(output)
@@ -98,8 +98,8 @@ module GlusterFSAgent
 
     def GlusterFSAgent.parse_volume_status(output)
         result = []
-        output.lines().each { | line |
-            if (line =~ /^Brick +(.+?) +(\d+) +(.) +(\d+).*$/)
+        output.lines().each { | line |            
+            if (line =~ /^Brick\s+(.+?)\s+(\d+)\s+(.)\s+(\d+).*$/)                
                 online = false
                 if $3=='Y'
                     online = true
@@ -116,7 +116,7 @@ module GlusterFSAgent
         count =0
         output.lines().each { | line |
             line = line.strip
-            if (line =~ /^(.+?) +(.+?) +(.+?) +(.+?) +(.+?) +(.+?) +(.+)$/)
+            if (line =~ /^(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\s+(.+?)\s+(.+)$/)
                 if count > 0                    
                     result << { 'masterNode'=>$1,
                         'masterVol'=>$2,
@@ -138,17 +138,17 @@ module GlusterFSAgent
         result = []
         count =0
         output.lines().each { | line |
-            line = line.strip            
-            if (line =~ /^(.+?) +(.+?) +(.+)$/)                
-                if count > 0                                       
-                    result << { 'UUID'=>$1,
-                        'hostname'=>$2,
-                        'state'=>$3,                        
+            line = line.strip                     
+            parts = line.split            
+            if parts.count()==3                                   
+                if count > 0                                                     
+                    result << { 'UUID'=>parts[0],
+                        'hostname'=>parts[1],
+                        'state'=>parts[2],                        
                     }
                 end
                 count = count+1
             end
-
         }
         return result
     end

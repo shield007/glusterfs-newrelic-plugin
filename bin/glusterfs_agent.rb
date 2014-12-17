@@ -43,7 +43,7 @@ require "newrelic_plugin"
 require "glusterfs_newrelic_agent/version"
 require "glusterfs_newrelic_agent/gluster"
 
-module GlusterFSAgent
+module GlusterFSAgent  
  
   # Find the configuration file to use
   def GlusterFSAgent.findConfig()
@@ -79,18 +79,24 @@ module GlusterFSAgent
   
     agent_guid "org.mbed.gluster"
     agent_version VERSION
+    agent_config_options :debug
     agent_human_labels("GlusterFS Agent") { "Gluster #{ENV['HOSTNAME']}" }
 
     def send_metric(title,value_type,value)
         report_metric title, value_type,value, {:count => 1, :min => value, :max =>value, :sum_of_squares=> 0}
-        puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
+        if debug            
+            puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
+        end
     end
 
-    def poll_cycle
+    def poll_cycle        
         begin               
             connectedPeers = 0
             peers = GlusterFSAgent::get_gluster_pool_list()
             peers.each { | peer |
+              if debug
+                  puts "Peer: #{peer}"
+              end 
               if peer['state']=='Connected'
                 connectedPeers = connectedPeers+1
               end
@@ -101,6 +107,9 @@ module GlusterFSAgent
             geoVolumes = GlusterFSAgent::get_gluster_volume_geo_status()
             working = 0
             geoVolumes.each { | volume |
+                if debug
+                  puts "Geo Volume: #{volume}"
+                end 
                 if volume['status'] == 'Passive' or volume['status'] == 'Active'
                     working = working+1
                 end
@@ -111,6 +120,9 @@ module GlusterFSAgent
             volumes = GlusterFSAgent::get_gluster_volume_status()
             offline = 0
             volumes.each { | volume |
+                if debug
+                  puts "Volume: #{volume}"
+                end
                 if !volume['online']
                     offline = offline+1
                 end
