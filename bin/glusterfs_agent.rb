@@ -83,7 +83,7 @@ module GlusterFSAgent
 
     def send_metric(title,value_type,value)
         report_metric title, value_type,value, {:count => 1, :min => value, :max =>value, :sum_of_squares=> 0}
-        # puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
+        puts "Sent metic '#{title}', '#{value_type}', '#{value}'"
     end
 
     def poll_cycle
