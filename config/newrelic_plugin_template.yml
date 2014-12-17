@@ -24,6 +24,7 @@ newrelic:
 # Agent Configuration:
 #
 agents:
+  
   # this is where configuration for agents belongs
   glusterfs:
-    hertz: 1000
+    debug: false
