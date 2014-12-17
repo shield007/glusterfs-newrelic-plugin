@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = 'glusterfs-agent'
   s.version     = GlusterFSAgent::VERSION
   s.date        = '2014-12-15'
-  s.summary     = "A NewRelic Plugin agent for monitoring GlusterFS"
+  s.summary     = "#{s.name}-#{s.version}"
   s.description = "A NewRelic(www.newrelic.com) GlusterFS Server monitor script "
   s.authors     = ["John-Paul Stanford"]
   s.email       = 'dev@stanwood.org.uk'
