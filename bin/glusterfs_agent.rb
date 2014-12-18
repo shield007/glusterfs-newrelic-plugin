@@ -75,12 +75,11 @@ module GlusterFSAgent
   NewRelic::Plugin::Config.config_file = GlusterFSAgent::findConfig()  
 
   class Agent < NewRelic::Plugin::Agent::Base
-
-  
+    
     agent_guid "org.mbed.gluster"
     agent_version VERSION
     agent_config_options :debug
-    agent_human_labels("GlusterFS Agent") { "Gluster #{ENV['HOSTNAME']}" }
+    agent_human_labels("GlusterFS Agent") { "Gluster #{`hostname`}" }
 
     def send_metric(title,value_type,value)
         report_metric title, value_type,value, {:count => 1, :min => value, :max =>value, :sum_of_squares=> 0}
@@ -89,7 +88,8 @@ module GlusterFSAgent
         end
     end
 
-    def poll_cycle        
+    def poll_cycle            
+        puts instance_label()    
         begin               
             connectedPeers = 0
             peers = GlusterFSAgent::get_gluster_pool_list()
